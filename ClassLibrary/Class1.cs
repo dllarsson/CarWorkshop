@@ -1,8 +1,9 @@
-﻿using System;
+﻿
+using System;
 
 namespace ClassLibrary
 {
-    public class Class1
+    public abstract class Vehicle
     {
     }
 }
