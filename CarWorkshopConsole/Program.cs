@@ -1,4 +1,5 @@
 ﻿using System;
+using ClassLibrary;
 
 namespace CarWorkshopConsole
 {
@@ -6,7 +7,8 @@ namespace CarWorkshopConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            WareHouseGenerator whg = new WareHouseGenerator();
+            whg.Generate();
         }
     }
 }
