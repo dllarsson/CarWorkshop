@@ -9,6 +9,7 @@ namespace ClassLibrary
         public string Type { get; }
         public decimal Price { get; }
         public int Stock { get; }
+        public int TimeToChangePart { get; }
 
         public void IncreaseStock();
         public void DecreaseStock();

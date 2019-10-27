@@ -9,6 +9,7 @@ namespace ClassLibrary
         public string Type { get; }
         public decimal Price { get; }
         public int Stock { get; set; }
+        public int TimeToChangePart { get; } = 7;
 
         public Wheel(string type, decimal price, int stock)
         {

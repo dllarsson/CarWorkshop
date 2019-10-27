@@ -1,14 +1,17 @@
 ﻿using System;
 using ClassLibrary;
+using ConsoleSimulationEngine2000;
 
 namespace CarWorkshopConsole
 {
     class Program
     {
-        static void Main(string[] args)
+        static async System.Threading.Tasks.Task Main(string[] args)
         {
-            WareHouseGenerator whg = new WareHouseGenerator();
-            whg.Generate();
+            var input = new TextInput();
+            var gui = new ConsoleGUI() { Input = input };
+            var sim = new MySimulation(gui, input);
+            await gui.Start(sim);
         }
     }
 }

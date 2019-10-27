@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClassLibrary
+namespace CarWorkshopConsole
 {
-    public class Car : Vehicle
+    class Command
     {
+        
     }
 }

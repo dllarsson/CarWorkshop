@@ -4,9 +4,13 @@ using System.Text;
 
 namespace ClassLibrary
 {
-    public class WareHouse
+    public class Workshop
     {
         public Dictionary<string, ISparePart> SpareParts = new Dictionary<string, ISparePart>();
+        public List<Employee> employees = new List<Employee>();
+        public List<Customer> customers = new List<Customer>();
+
+        private int count = 0;
 
         public void AddSparePart(string key)
         {
@@ -69,7 +73,7 @@ namespace ClassLibrary
             }
         }
 
-        public void RemovePart(string key)
+        public void RemoveSparePart(string key)
         {
             if (SpareParts.ContainsKey(key))
             {
@@ -93,5 +97,69 @@ namespace ClassLibrary
                 return -1;
             }
         }
+
+        public void RepairVehicle(Customer c, Employee e)
+        {
+            decimal priceOfRepair = 0;
+            while (c.Vehicle.BrokenParts.Count > 0)
+            {
+                priceOfRepair += GetPriceOfSparePart(c.Vehicle.BrokenParts[0].Type);
+                SpareParts[c.Vehicle.BrokenParts[0].Type].DecreaseStock();
+                c.Vehicle.BrokenParts.RemoveAt(0);
+            }
+            priceOfRepair += CalculateRepairTime(c) * e.HourlyWage;
+
+            c.Invoice = new Invoice(priceOfRepair);
+            
+        }
+
+        public int CalculateRepairTime(Customer c)
+        {
+            int repairTime = 0;
+            foreach (var item in c.Vehicle.BrokenParts)
+            {
+                repairTime += item.TimeToChangePart;
+            }
+            return repairTime;
+        }
+
+        public bool ReparingVehicle(Customer c, Employee e, int repairTime)
+        {
+            if (count != repairTime)
+            {
+                count++;
+                e.StateSet(e.Name + " is working. " + "Total cost of repair: " + e.HourlyWage * count);
+                return false;
+            }
+            else
+            {
+                count = 0;
+                return true;
+            }
+
+        }
+
+        public void HandInCarToShop(Customer c,string key)
+        {
+            
+            c.Vehicle.BrokenParts.Add(SpareParts[key]);
+            customers.Add(c);
+        }
+        public void HandInCarToShop(Customer c, string key, string key2)
+        {
+            c.Vehicle.BrokenParts.Add(SpareParts[key]);
+            c.Vehicle.BrokenParts.Add(SpareParts[key2]);
+            customers.Add(c);
+        }
+        public void HandInCarToShop(Customer c, string key, string key2, string key3)
+        {
+            c.Vehicle.BrokenParts.Add(SpareParts[key]);
+            c.Vehicle.BrokenParts.Add(SpareParts[key2]);
+            c.Vehicle.BrokenParts.Add(SpareParts[key3]);
+
+            customers.Add(c);
+        }
+
+
     }
 }

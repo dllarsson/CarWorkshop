@@ -9,6 +9,7 @@ namespace ClassLibrary
         public string Type { get; private set; }
         public decimal Price { get; private set; }
         public int Stock { get; set; }
+        public int TimeToChangePart { get; } = 13;
 
         public Transmission(string type, decimal price, int stock)
         {
