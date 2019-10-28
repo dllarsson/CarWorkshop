@@ -4,21 +4,16 @@ using System.Text;
 
 namespace ClassLibrary
 {
-    public class Employee
+    public abstract class Employee
     {
-        public string Name { get; }
-        public decimal HourlyWage { get; }
-        public int WorkDone { get; private set; }
-        public int WorkTotal { get; }
-        public bool IsDoneWithWork { get; private set; }
-        public string State { get; private set; }
-
-        public Employee(string name, decimal hourlyWage)
-        {
-            Name = name;
-            HourlyWage = hourlyWage;
-        }
-
+        public string Name { get;  set; }
+        public decimal HourlyWage { get;  set; }
+        public int WorkDone { get;  set; }
+        public int WorkTotal { get;  set; }
+        public bool IsWorking { get; set; }
+        public string State { get;  set; }
+        public int SkillLevel { get;  set; }
+        public abstract decimal Workspeed { get; set; }
 
         public void StateSet(string state)
         {

@@ -8,29 +8,25 @@ namespace ClassLibrary
     {
         public int ID { get; set; }
         public string  Name { get; set; }
-        public Vehicle Vehicle { get; set; }
-        public Invoice Invoice { get; set; }
+        public decimal Balance { get; private set; }
 
-        public Customer(int id, Vehicle vehicle)
+        public Customer(int id, string name)
         {
             ID = id;
-            Vehicle = vehicle;
+            Name = name;
         }
 
-        public Customer(int id, Vehicle vehicle, ISparePart brokenPart, ISparePart brokenPartTwo)
+        public override bool Equals(object obj)
         {
-            ID = id;
-            Vehicle = vehicle;
-            Vehicle.BrokenParts.Add(brokenPart);
-            Vehicle.BrokenParts.Add(brokenPartTwo);
+            if (obj is Customer)
+            {
+                return this.ID == ((Customer)obj).ID;
+            }
+            return false;
         }
-        public Customer(int id, Vehicle vehicle, ISparePart brokenPart, ISparePart brokenPartTwo, ISparePart brokenPartThree)
+        public override int GetHashCode()
         {
-            ID = id;
-            Vehicle = vehicle;
-            Vehicle.BrokenParts.Add(brokenPart);
-            Vehicle.BrokenParts.Add(brokenPartTwo);
-            Vehicle.BrokenParts.Add(brokenPartThree);
+            return ID.GetHashCode();
         }
     }
 }

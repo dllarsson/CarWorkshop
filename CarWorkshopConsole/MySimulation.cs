@@ -2,6 +2,7 @@
 using ConsoleSimulationEngine2000;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CarWorkshopConsole
@@ -15,9 +16,6 @@ namespace CarWorkshopConsole
         private readonly ConsoleGUI gui;
         private readonly TextInput input;
 
-        private bool IsUnderRepair = false;
-
-        StringBuilder sr = new StringBuilder();
         Workshop ws = new Workshop();
         WorkshopGenerator wsg = new WorkshopGenerator();
 
@@ -30,7 +28,7 @@ namespace CarWorkshopConsole
 
         public MySimulation(ConsoleGUI gui, TextInput input)
         {
-            gui.TargetUpdateTime = 500;
+            gui.TargetUpdateTime = 700;
             wsg.GenerateEmpoyees(ws);
             wsg.GenerateStock(ws);
             this.gui = gui;
@@ -41,25 +39,32 @@ namespace CarWorkshopConsole
         }
         public override void PassTime(int deltaTime)
         {
+            
+            
             clockDisplay.Value = DateTime.Now.ToString("HH:mm:ss");
-            stockDisplay.Value = "Engines: " + ws.SpareParts["engine"].Stock.ToString() +
-                " Transmissions: " + ws.SpareParts["transmission"].Stock.ToString() +
-                " Wheels: " + ws.SpareParts["wheel"].Stock.ToString();
-            if (IsUnderRepair)
+            stockDisplay.Value = "";
+            if (ws.workItems.Count > 0)
             {
-                
-               if(ws.ReparingVehicle(ws.customers[0], ws.employees[0], ws.CalculateRepairTime(ws.customers[0])))
+                foreach (var item in ws.workItems.ToList())
                 {
-                    ws.RepairVehicle(ws.customers[0], ws.employees[0]);
-                    log.Log("Repair complete. Total cost of repair: " + ws.customers[0].Invoice.Total + " Name Of customer: " +
-                        ws.customers[0].ID);
-                    IsUnderRepair = false;
+                    if (!item.Vehicle.IsRepaired)
+                    {
+                        item.DoWork();
+                        if (item.Vehicle.IsRepaired)
+                        {
+                            log.Log(item.Invoice.Total + " price of parts: " + item.Invoice.PriceOfParts +
+                            " price of work: " + item.Invoice.PriceOfWork);
+                        }
+                        log.Log(item.GetStatus());
+                    }
+                    else
+                    {
+                       
+                    }
                 }
-                else
-                {
-                    log.Log(ws.employees[0].State);
-                }
+
             }
+
 
             while (input.HasInput)
             {
@@ -69,28 +74,30 @@ namespace CarWorkshopConsole
                 
             }
         }
+
         public void HandleCommand(string command)
         {
             if (command == "1") //Hand in new car to workShop
             {
-                Car c = new Car();
-                Customer customer = new Customer(1, c);
-
-                ws.customers.Add(customer);
-
-                ws.HandInCarToShop(customer, "transmission", "wheel", "wheel");
-
-                IsUnderRepair = true;
-                
-
+                List<SparePart> spareParts = new List<SparePart>();
+                spareParts.Add(ws.SpareParts["transmission"]);
+                spareParts.Add(ws.SpareParts["wheel"]);
+                spareParts.Add(ws.SpareParts["engine"]);
+                ws.HandInCarToShop("Johan", "Saab", 2007, "abc123", spareParts);
             }
             else if (command == "2")
             {
-
+                List<SparePart> spareParts = new List<SparePart>();
+                spareParts.Add(ws.SpareParts["door"]);
+                spareParts.Add(ws.SpareParts["wheel"]);
+                spareParts.Add(ws.SpareParts["muffler"]);
+                ws.HandInCarToShop("Erik", "Volvo", 2007, "hej321", spareParts);
             }
             else if (command == "3")
             {
-
+                List<SparePart> spareParts = new List<SparePart>();
+                spareParts.Add(ws.SpareParts["wheel"]);
+                ws.HandInCarToShop("Hello", "Volvo", 2007, "aaa333", spareParts);
             }
         }
     }
