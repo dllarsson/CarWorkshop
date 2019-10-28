@@ -8,11 +8,11 @@ namespace ClassLibrary
     public class Workshop
     {
         public Dictionary<string, SparePart> SpareParts = new Dictionary<string, SparePart>();
-        public List<Employee> employees = new List<Employee>();
-        public List<Customer> customers = new List<Customer>();
+        public List<Employee> Empolyees = new List<Employee>();
+        public List<Customer> Customers = new List<Customer>();
         public Dictionary<Customer, Invoice> Invoices = new Dictionary<Customer, Invoice>();
-        public Dictionary<string, (Vehicle, Customer)> Vehicles = new Dictionary<string, (Vehicle, Customer)>();
-        public List<WorkItem> workItems = new List<WorkItem>();
+        public List<WorkItem> WorkItems = new List<WorkItem>();
+        public int AvaibleWorkers { get; set; } = 3;
 
 
         public void AddSparePart(string key, int stock, int timeToChangePart, decimal price, int skillLevelRequiredToChangePart)
@@ -68,26 +68,43 @@ namespace ClassLibrary
 
             
             e.IsWorking = false;
+            AvaibleWorkers++;
 
-            for (int i = 0; i < workItems.Count; i++)
+            for (int i = 0; i < WorkItems.Count; i++)
             {
-                if (workItem == workItems[i])
+                if (workItem == WorkItems[i])
                 {
-                    workItems.RemoveAt(i);
+                    WorkItems.RemoveAt(i);
                 }
             }
             LookForWork(e);
         }
 
+        public string LookForHelp(Employee e)
+        {
+            foreach (var employee in Empolyees)
+            {
+                if (!employee.IsWorking)
+                {
+                    ((Intern)e).NeedHelp = false;
+                    return " asking " + employee.Name + " for help.";
+                }
+            }
+                    return "Nobody is free to help!";
+        }
+
         public void LookForWork(Employee e)
         {
-            if(workItems.Count > 0)
+            if(WorkItems.Count > 0)
             {
-                foreach (var item in workItems.ToList())
+                foreach (var item in WorkItems.ToList())
                 {
                     if (item.Employee == null)
                     {
                         item.Employee = e;
+                        item.Employee.IsWorking = true;
+                        AvaibleWorkers--;
+                        break;
                     }
                 }
             }
@@ -107,13 +124,12 @@ namespace ClassLibrary
 
         public void HandInCarToShop(string customerName, string manufacturer, int modelYear, string liecensePlate, List<SparePart> brokenParts)
         {
-            Customer c = new Customer(customers.Count + 1, customerName);
-            customers.Add(c);
+            Customer c = new Customer(Customers.Count + 1, customerName);
+            Customers.Add(c);
             Vehicle v = new Vehicle(manufacturer, modelYear, liecensePlate, brokenParts);
 
-            WorkItem workItem = new WorkItem(this, GetEmployeeForWork(v), v, CalculateRepairTime(v), c, workItems.Count + 1, GetPriceOfAllSpareParts(v));
-            workItems.Add(workItem);
-            Vehicles.Add(liecensePlate.ToUpper(), (v, c));
+            WorkItem workItem = new WorkItem(this, GetEmployeeForWork(v), v, CalculateRepairTime(v), c, WorkItems.Count + 1, GetPriceOfAllSpareParts(v));
+            WorkItems.Add(workItem);
         }
 
         public decimal GetPriceOfAllSpareParts(Vehicle v)
@@ -127,6 +143,7 @@ namespace ClassLibrary
         }
 
         public Employee GetEmployeeForWork(Vehicle v)
+        
         {
             Employee e = null;
             var lowestSkillLevel = 0;
@@ -137,14 +154,15 @@ namespace ClassLibrary
                     lowestSkillLevel = v.BrokenParts[i].SkillLevelRequiredToChangePart;
                 }
             }
-            for (int i = 0; i < employees.Count; i++)
+            for (int i = 0; i < Empolyees.Count; i++)
             {
-                if (employees[i].SkillLevel >= lowestSkillLevel)
+                if (Empolyees[i].SkillLevel >= lowestSkillLevel)
                 {
-                    if (employees[i].IsWorking != true)
+                    if (Empolyees[i].IsWorking != true)
                     {
-                        e = employees[i];
+                        e = Empolyees[i];
                         e.IsWorking = true;
+                        AvaibleWorkers--;
                         break;
                     }
 

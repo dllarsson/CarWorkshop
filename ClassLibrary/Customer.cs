@@ -6,8 +6,8 @@ namespace ClassLibrary
 {
     public class Customer
     {
-        public int ID { get; set; }
-        public string  Name { get; set; }
+        public int ID { get; }
+        public string  Name { get; }
         public decimal Balance { get; private set; }
 
         public Customer(int id, string name)

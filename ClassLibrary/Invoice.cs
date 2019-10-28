@@ -8,10 +8,10 @@ namespace ClassLibrary
     {
         public decimal Total { get; }
         public string WorkerOfVehicle { get; }
-        public string WorkerOnVehice { get; private set; }
-        public decimal PriceOfWork { get; private set; }
-        public decimal PriceOfParts { get; set; }
-        public bool IsPayed { get;  private set; }
+        public string WorkerOnVehice { get; }
+        public decimal PriceOfWork { get; }
+        public decimal PriceOfParts { get; }
+        public bool IsPayed { get; }
 
         public Invoice(decimal total, string workerOfVehicle, decimal priceOfWork, decimal priceOfParts)
         {

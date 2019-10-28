@@ -10,56 +10,104 @@ namespace CarWorkshopConsole
     public class MySimulation : Simulation
     {
         private RollingDisplay log = new RollingDisplay(0, 0, -1, 12);
-        private BorderedDisplay clockDisplay = new BorderedDisplay(0, 11, 20, 3) { };
-        private RollingDisplay menuDisplay = new RollingDisplay(0, 14, 50, 10) { };
-        private BorderedDisplay stockDisplay = new BorderedDisplay(65, 14, 50, 3);
+        private BorderedDisplay ammountOfWorkItems = new BorderedDisplay(0, 11, 100, 3) { };
+        private BorderedDisplay workers = new BorderedDisplay(0, 14, 100, 3) { };
+
+        private BorderedDisplay worker1 = new BorderedDisplay(0, 20, 100, 5);
+        private BorderedDisplay worker2 = new BorderedDisplay(0, 23, 100, 5);
+        private BorderedDisplay worker3 = new BorderedDisplay(0, 26, 100, 5);
         private readonly ConsoleGUI gui;
         private readonly TextInput input;
 
-        Workshop ws = new Workshop();
-        WorkshopGenerator wsg = new WorkshopGenerator();
+        private Workshop ws = new Workshop();
+        private WorkshopGenerator wsg = new WorkshopGenerator();
 
         public override List<BaseDisplay> Displays => new List<BaseDisplay>() {
         log,
-        clockDisplay,
-        menuDisplay,
-        stockDisplay,
+        ammountOfWorkItems,
+        worker1,
+        worker2,
+        worker3,
+        workers,
         input.CreateDisplay(0, -3, -1) };
 
         public MySimulation(ConsoleGUI gui, TextInput input)
         {
+            log.Log("Welcome to car repair workshop simulator.");
+            log.Log("Press 1 as many times as you want to in oder to simulate a new vehicle being repaired.");
+            log.Log("Press 2 to exit simulation.");
+
+
             gui.TargetUpdateTime = 700;
             wsg.GenerateEmpoyees(ws);
             wsg.GenerateStock(ws);
             this.gui = gui;
             this.input = input;
-            menuDisplay.Log("Welcome to the workshop!");
-            menuDisplay.Log("Type 1 to hand in a car");
-            menuDisplay.Log("Type 2 to hand in a motorcycle");
         }
         public override void PassTime(int deltaTime)
         {
-            
-            
-            clockDisplay.Value = DateTime.Now.ToString("HH:mm:ss");
-            stockDisplay.Value = "";
-            if (ws.workItems.Count > 0)
+            var count = 0;
+            workers.Value = "Workers avaible for work (if skilled enough): " + ws.AvaibleWorkers;
+            ammountOfWorkItems.Value = "Current ammount of vehicles in shop: " + ws.WorkItems.Count;
+            if (ws.WorkItems.Count > 0)
             {
-                foreach (var item in ws.workItems.ToList())
+                if (ws.WorkItems.Count == 2)
                 {
-                    if (!item.Vehicle.IsRepaired)
+                    worker3.Value = "";
+                }
+                else if (ws.WorkItems.Count == 1)
+                {
+                    worker2.Value = "";
+                }
+                else if (ws.WorkItems.Count == 0)
+                {
+                    worker1.Value = "";
+                }
+                foreach (var item in ws.WorkItems.ToList())
+                {
+                    if (count == 0)
                     {
-                        item.DoWork();
-                        if (item.Vehicle.IsRepaired)
+                        if (!item.Vehicle.IsRepaired)
                         {
-                            log.Log(item.Invoice.Total + " price of parts: " + item.Invoice.PriceOfParts +
-                            " price of work: " + item.Invoice.PriceOfWork);
+                            worker1.Value = (item.DoWork());
+                            if (item.Vehicle.IsRepaired)
+                            {
+                                log.Log(item.Customer.Name + "'s " + item.Vehicle.Manufacturer + " " +
+                                    item.Vehicle.ModelYear + " " + "(" + item.Vehicle.LicensePlate.ToUpper() + ")" +
+                                    " is repaired! Cost of parts: " +
+                                    item.Invoice.PriceOfParts + ". Cost of work: " + item.Invoice.PriceOfWork +
+                                    ". Total cost: " + item.Invoice.Total);
+                            }
                         }
-                        log.Log(item.GetStatus());
                     }
-                    else
+                    else if (count == 1)
                     {
-                       
+                        if (!item.Vehicle.IsRepaired)
+                        {
+                            worker2.Value = (item.DoWork());
+                            if (item.Vehicle.IsRepaired)
+                            {
+                                worker2.Value = (item.Invoice.Total + " price of parts: " + item.Invoice.PriceOfParts +
+                                " price of work: " + item.Invoice.PriceOfWork);
+                            }
+                        }
+                    }
+                    else if (count == 2)
+                    {
+                        if (!item.Vehicle.IsRepaired)
+                        {
+                            worker3.Value = (item.DoWork());
+                            if (item.Vehicle.IsRepaired)
+                            {
+                                worker3.Value = (item.Invoice.Total + " price of parts: " + item.Invoice.PriceOfParts +
+                                " price of work: " + item.Invoice.PriceOfWork);
+                            }
+                        }
+                    }
+                    if (item.Employee != null)
+                    {
+                        count++;
+
                     }
                 }
 
@@ -71,7 +119,7 @@ namespace CarWorkshopConsole
                 var command = input.Consume();
                 log.Log("Input: " + command);
                 HandleCommand(command);
-                
+
             }
         }
 
@@ -79,26 +127,14 @@ namespace CarWorkshopConsole
         {
             if (command == "1") //Hand in new car to workShop
             {
-                List<SparePart> spareParts = new List<SparePart>();
-                spareParts.Add(ws.SpareParts["transmission"]);
-                spareParts.Add(ws.SpareParts["wheel"]);
-                spareParts.Add(ws.SpareParts["engine"]);
-                ws.HandInCarToShop("Johan", "Saab", 2007, "abc123", spareParts);
+                List<SparePart> spareParts = wsg.GenerateBrokenParts(ws);
+                ws.HandInCarToShop(wsg.GenerateName(), wsg.GenerateManufacturers(), wsg.GenerateYear(), wsg.GenerateRandomLieciensePlate(), spareParts);
             }
-            else if (command == "2")
+            if (command == "2")
             {
-                List<SparePart> spareParts = new List<SparePart>();
-                spareParts.Add(ws.SpareParts["door"]);
-                spareParts.Add(ws.SpareParts["wheel"]);
-                spareParts.Add(ws.SpareParts["muffler"]);
-                ws.HandInCarToShop("Erik", "Volvo", 2007, "hej321", spareParts);
+                Environment.Exit(0);
             }
-            else if (command == "3")
-            {
-                List<SparePart> spareParts = new List<SparePart>();
-                spareParts.Add(ws.SpareParts["wheel"]);
-                ws.HandInCarToShop("Hello", "Volvo", 2007, "aaa333", spareParts);
-            }
+
         }
     }
 }

@@ -14,6 +14,7 @@ namespace ClassLibrary
         public string State { get;  set; }
         public int SkillLevel { get;  set; }
         public abstract decimal Workspeed { get; set; }
+        public abstract string Title { get; set; }
 
         public void StateSet(string state)
         {
